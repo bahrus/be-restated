@@ -23,7 +23,7 @@ Bottom line, *be-restated* focuses on the following problem statements:
             <td>be-restated</td>
             <td>
                 <ol>
-                    <li>Extracting the data from server-rendered HTML, in partnership with [obj-xml](https://github.com/bahrus/obj-ml)</li>
+                    <li>Extracting the data from server-rendered HTML, in partnership with <a href=https://github.com/bahrus/obj-ml target=_blank>obj-xml</a></li>
                     <li>Providing derived content from other content.  For example, generating a table of contents based on the contents of the page.</li>
                 </ol>
             </td>
