@@ -34,10 +34,18 @@ Bottom line, *be-restated* focuses on the following problem statements:
             <td>
                 <ol>
                     <li>Replace existing content with structurally different content.</li>
-                    <li>Replacing initial paint focused, native HTML elements with a design library markup, once the design library is downloaded</li>
+                    <li>Replace HTML optimized for first paint, composed of native HTML elements, with markup consisting of design library tags, once the design library has been downloaded</li>
                 </ol>
             </td>
             <td></td>
+        </tr>
+        <tr>
+            <td>be-ferried</td>
+            <td>
+                <ol>
+                    <li>Make a replica of the light children, and transform it into the markup that makes sense within the Shadow DOM</li>
+                </ol>
+            </td>
         </tr>
     </tbody>
 </table>
