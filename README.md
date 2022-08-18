@@ -20,7 +20,7 @@ Bottom line, *be-restated* focuses on the following problem statements:
     </thead>
     <tbody>
         <tr>
-            <td>be-restated</td>
+            <td><a href=https://github.com/bahrus/be-restated>be-restated</a></td>
             <td>
                 <ol>
                     <li>Extracting the data from server-rendered HTML, in partnership with <a href=https://github.com/bahrus/obj-ml target=_blank>obj-xml</a></li>
@@ -30,7 +30,7 @@ Bottom line, *be-restated* focuses on the following problem statements:
             <td></td>
         </tr>
         <tr>
-            <td>be-metamorphic</td>
+            <td><a href=https://github.com/bahrus/be-metamorphic>be-metamorphic</a></td>
             <td>
                 <ol>
                     <li>Replace existing content with structurally different content.</li>
@@ -40,7 +40,7 @@ Bottom line, *be-restated* focuses on the following problem statements:
             <td></td>
         </tr>
         <tr>
-            <td>be-ferried</td>
+            <td><a href=https://github.com/bahrus/be-ferried>be-ferried</a></td>
             <td>
                 <ol>
                     <li>Make a replica of the light children, and transform it into the markup that makes sense within the Shadow DOM realm.</li>
