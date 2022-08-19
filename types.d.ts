@@ -22,6 +22,7 @@ export type P =  Partial<Element & BeRestatedVirtualProps>;
 
 export interface BeRestatedActions{
     intro(proxy: Element & BeRestatedVirtualProps, target: Element, beDecorProps: BeDecoratedProps): void;
+    finale(proxy: Element & BeRestatedVirtualProps, target: Element, beDecorProps: BeDecoratedProps): void;
     onFrom(self: this): void;
     onFromRef(self: this): void;
     onXslt(self: this): void;

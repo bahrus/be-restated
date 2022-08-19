@@ -38,6 +38,7 @@ export class BeRestated implements BeRestatedActions{
 
     onFromBeacon = (e: Event) => {
         this.updateCount++;
+        this.fromEl = this.fromRef.deref();
     }
 
     onFromRef({fromRef, self}: this): P {
@@ -83,6 +84,14 @@ export class BeRestated implements BeRestatedActions{
         return {
             fromEl: undefined
         }
+    }
+
+    finale(proxy: Element & BeRestatedVirtualProps, target: Element, beDecorProps: BeDecoratedProps<any, any>): void {
+        const {fromRef} = proxy;
+        if(fromRef === undefined) return;
+        const fromEl = fromRef.deref();
+        if(fromEl === undefined) return;
+        fromEl.removeEventListener('i-am-here', this.onFromBeacon);
     }
 }
 

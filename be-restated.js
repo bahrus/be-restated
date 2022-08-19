@@ -35,6 +35,7 @@ export class BeRestated {
     };
     onFromBeacon = (e) => {
         this.updateCount++;
+        this.fromEl = this.fromRef.deref();
     };
     onFromRef({ fromRef, self }) {
         const fromEl = fromRef.deref();
@@ -77,6 +78,15 @@ export class BeRestated {
         return {
             fromEl: undefined
         };
+    }
+    finale(proxy, target, beDecorProps) {
+        const { fromRef } = proxy;
+        if (fromRef === undefined)
+            return;
+        const fromEl = fromRef.deref();
+        if (fromEl === undefined)
+            return;
+        fromEl.removeEventListener('i-am-here', this.onFromBeacon);
     }
 }
 const tagName = 'be-restated';
