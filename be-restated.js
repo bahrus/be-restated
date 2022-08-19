@@ -1,51 +1,43 @@
-import {define, BeDecoratedProps} from 'be-decorated/be-decorated.js';
-import {register} from 'be-hive/register.js';
+import { define } from 'be-decorated/be-decorated.js';
+import { register } from 'be-hive/register.js';
 import 'be-a-beacon/be-a-beacon.js';
-import {BeRestatedActions, BeRestatedProps, BeRestatedVirtualProps, P} from './types';
-
-const xsltLookup: {[key: string]: XSLTProcessor} = {};
-
-export class BeRestated implements BeRestatedActions{
-    #target!: Element;
-    intro(proxy: Element & BeRestatedVirtualProps, target: Element, beDecorProps: BeDecoratedProps<any, any>): void {
+const xsltLookup = {};
+export class BeRestated {
+    #target;
+    intro(proxy, target, beDecorProps) {
         this.#target = target;
     }
-    onFrom({from, proxy}: this): void {
-        const rn = proxy.getRootNode() as Element | DocumentFragment;
+    onFrom({ from, proxy }) {
+        const rn = proxy.getRootNode();
         const fromEl = rn.querySelector(from);
-        if(fromEl !== null){
+        if (fromEl !== null) {
             proxy.fromRef = new WeakRef(fromEl);
             return;
         }
         rn.addEventListener('i-am-here', this.onRNBeacon);
     }
-
-    onRNBeacon = (e: Event) => {
-        const rn = this.#target.getRootNode() as Element | DocumentFragment;
+    onRNBeacon = (e) => {
+        const rn = this.#target.getRootNode();
         const fromEl = rn.querySelector(this.proxy.from);
-        if(fromEl === null) return;
+        if (fromEl === null)
+            return;
         rn.removeEventListener('i-am-here', this.onRNBeacon);
         fromEl.addEventListener('i-am-here', this.onFromBeacon);
         this.proxy.fromRef = new WeakRef(fromEl);
-    }
-
-    onFromBeacon = (e: Event) => {
-
-    }
-
-    onFromRef({fromRef, self}: this): void {
+    };
+    onFromBeacon = (e) => {
+    };
+    onFromRef({ fromRef, self }) {
         const ref = fromRef.deref();
-        if(ref === undefined) {
+        if (ref === undefined) {
             this.onFrom(self);
             return;
         }
-
     }
-
-    async onXslt({xslt}: this): Promise<P> {
+    async onXslt({ xslt }) {
         //identical to be-metamorphic.onDependciesLoaded
         let xsltProcessor = xsltLookup[xslt];
-        if(xsltProcessor !== undefined){
+        if (xsltProcessor !== undefined) {
             return {
                 xsltProcessor
             };
@@ -58,16 +50,15 @@ export class BeRestated implements BeRestatedActions{
         xsltLookup[xslt] = xsltProcessor;
         return {
             xsltProcessor
-        }; 
+        };
     }
-
-    async onReady({xsltProcessor, fromEl, proxy, expandTempl}: this): Promise<P>{
-        let xmlSrc = fromEl!;
-        if(expandTempl){
-            const {clone} = await import('trans-render/xslt/clone.js');
+    async onReady({ xsltProcessor, fromEl, proxy, expandTempl }) {
+        let xmlSrc = fromEl;
+        if (expandTempl) {
+            const { clone } = await import('trans-render/xslt/clone.js');
             xmlSrc = clone(xmlSrc);
         }
-        const {swap} = await import('trans-render/xslt/swap.js');
+        const { swap } = await import('trans-render/xslt/swap.js');
         swap(xmlSrc, true);
         const resultDocument = xsltProcessor.transformToFragment(xmlSrc, document);
         //swap(resultDocument, false);
@@ -75,28 +66,22 @@ export class BeRestated implements BeRestatedActions{
         this.#target.append(resultDocument);
         return {
             fromEl: undefined
-        }
+        };
     }
 }
-
-export interface BeRestated extends BeRestatedProps{}
-
 const tagName = 'be-restated';
-
 const ifWantsToBe = 'restated';
-
 const upgrade = '*';
-
-define<BeRestatedProps & BeDecoratedProps<BeRestatedProps, BeRestatedActions>, BeRestatedActions>({
-    config:{
+define({
+    config: {
         tagName,
-        propDefaults:{
+        propDefaults: {
             upgrade,
             ifWantsToBe,
-            virtualProps:['from', 'xslt', 'xsltProcessor', 'fromRef', 'fromEl', 'expandTempl'],
+            virtualProps: ['from', 'xslt', 'xsltProcessor', 'fromRef', 'fromEl', 'expandTempl'],
             intro: 'intro'
         },
-        actions:{
+        actions: {
             onFrom: 'from',
             onFromRef: 'fromRef',
             onXslt: 'xslt',
@@ -105,9 +90,8 @@ define<BeRestatedProps & BeDecoratedProps<BeRestatedProps, BeRestatedActions>, B
             }
         }
     },
-    complexPropDefaults:{
+    complexPropDefaults: {
         controller: BeRestated
     }
 });
-
 register(ifWantsToBe, upgrade, tagName);
