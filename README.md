@@ -72,6 +72,6 @@ Bottom line, *be-restated* focuses on the following problem statements:
 What this does:
 
 1.  If be-restated can't locate main, it attaches an event handler to the host or document.body, listening for the event be-a-beacon emits:  "i-am-here".  Every time such an event occurs, searches the host's Shadow DOM, or document.body for element "main".
-2.  Once element "main" is found, moves the beacon event listener to the main event.
+2.  Once element "main" is found, moves the beacon event listener to the main element.
 3.  If the template[be-a-beacon] element is found, xslt is performed with the content of the main element, and the table-of-contents light children are populated from the result.
 4.  If the event handler on the main element picks up "i-am-here" messages going forward, it re-does step 3.
