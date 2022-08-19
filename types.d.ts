@@ -11,6 +11,7 @@ export interface BeRestatedVirtualProps extends BeRestatedEndUserProps {
     xsltProcessor: XSLTProcessor;
     self: any;
     fromEl: Element | undefined;
+    updateCount: number;
 }
 
 export interface BeRestatedProps extends BeRestatedVirtualProps{

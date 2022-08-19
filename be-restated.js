@@ -14,18 +14,27 @@ export class BeRestated {
             proxy.fromRef = new WeakRef(fromEl);
             return;
         }
-        rn.addEventListener('i-am-here', this.onRNBeacon);
+        rn.addEventListener('i-am-here', this.onRNBeacon, { capture: true });
     }
     onRNBeacon = (e) => {
         const rn = this.#target.getRootNode();
         const fromEl = rn.querySelector(this.proxy.from);
         if (fromEl === null)
             return;
-        rn.removeEventListener('i-am-here', this.onRNBeacon);
+        rn.removeEventListener('i-am-here', this.onRNBeacon, { capture: true });
+        const beacon = fromEl.querySelector('template[be-a-beacon],template[is-a-beacon]');
+        if (beacon === null) {
+            fromEl.addEventListener('i-am-here', e => {
+                this.proxy.fromRef = new WeakRef(fromEl);
+            }, { once: true, capture: true });
+        }
+        else {
+            this.proxy.fromRef = new WeakRef(fromEl);
+        }
         fromEl.addEventListener('i-am-here', this.onFromBeacon);
-        this.proxy.fromRef = new WeakRef(fromEl);
     };
     onFromBeacon = (e) => {
+        this.updateCount++;
     };
     onFromRef({ fromRef, self }) {
         const ref = fromRef.deref();
@@ -78,15 +87,18 @@ define({
         propDefaults: {
             upgrade,
             ifWantsToBe,
-            virtualProps: ['from', 'xslt', 'xsltProcessor', 'fromRef', 'fromEl', 'expandTempl'],
-            intro: 'intro'
+            virtualProps: ['from', 'xslt', 'xsltProcessor', 'fromRef', 'fromEl', 'expandTempl', 'updateCount'],
+            intro: 'intro',
+            proxyPropDefaults: {
+                updateCount: 1,
+            }
         },
         actions: {
             onFrom: 'from',
             onFromRef: 'fromRef',
             onXslt: 'xslt',
             onReady: {
-                ifAllOf: ['fromEl', 'xsltProcessor']
+                ifAllOf: ['fromEl', 'xsltProcessor', 'updateCount'],
             }
         }
     },
