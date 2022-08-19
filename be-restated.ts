@@ -4,8 +4,6 @@ import 'be-a-beacon/be-a-beacon.js';
 import {BeRestatedActions, BeRestatedProps, BeRestatedVirtualProps, P} from './types';
 import {Mgmt} from 'trans-render/xslt/Mgmt.js';
 
-//const xsltLookup: {[key: string]: XSLTProcessor} = {};
-
 export class BeRestated implements BeRestatedActions{
     #target!: Element;
     #xsltMgmt = new Mgmt();
