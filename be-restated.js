@@ -1,9 +1,11 @@
 import { define } from 'be-decorated/be-decorated.js';
 import { register } from 'be-hive/register.js';
 import 'be-a-beacon/be-a-beacon.js';
-const xsltLookup = {};
+import { Mgmt } from 'trans-render/xslt/Mgmt.js';
+//const xsltLookup: {[key: string]: XSLTProcessor} = {};
 export class BeRestated {
     #target;
+    #xsltMgmt = new Mgmt();
     intro(proxy, target, beDecorProps) {
         this.#target = target;
     }
@@ -47,18 +49,7 @@ export class BeRestated {
     }
     async onXslt({ xslt }) {
         //identical to be-metamorphic.onDependciesLoaded
-        let xsltProcessor = xsltLookup[xslt];
-        if (xsltProcessor !== undefined) {
-            return {
-                xsltProcessor
-            };
-        }
-        const resp = await fetch(xslt);
-        const xsltString = await resp.text();
-        const xsltNode = new DOMParser().parseFromString(xsltString, 'text/xml');
-        xsltProcessor = new XSLTProcessor();
-        xsltProcessor.importStylesheet(xsltNode);
-        xsltLookup[xslt] = xsltProcessor;
+        const xsltProcessor = await this.#xsltMgmt.getProcessor(xslt);
         return {
             xsltProcessor
         };

@@ -2,11 +2,13 @@ import {define, BeDecoratedProps} from 'be-decorated/be-decorated.js';
 import {register} from 'be-hive/register.js';
 import 'be-a-beacon/be-a-beacon.js';
 import {BeRestatedActions, BeRestatedProps, BeRestatedVirtualProps, P} from './types';
+import {Mgmt} from 'trans-render/xslt/Mgmt.js';
 
-const xsltLookup: {[key: string]: XSLTProcessor} = {};
+//const xsltLookup: {[key: string]: XSLTProcessor} = {};
 
 export class BeRestated implements BeRestatedActions{
     #target!: Element;
+    #xsltMgmt = new Mgmt();
     intro(proxy: Element & BeRestatedVirtualProps, target: Element, beDecorProps: BeDecoratedProps<any, any>): void {
         this.#target = target;
     }
@@ -52,18 +54,7 @@ export class BeRestated implements BeRestatedActions{
 
     async onXslt({xslt}: this): Promise<P> {
         //identical to be-metamorphic.onDependciesLoaded
-        let xsltProcessor = xsltLookup[xslt];
-        if(xsltProcessor !== undefined){
-            return {
-                xsltProcessor
-            };
-        }
-        const resp = await fetch(xslt);
-        const xsltString = await resp.text();
-        const xsltNode = new DOMParser().parseFromString(xsltString, 'text/xml');
-        xsltProcessor = new XSLTProcessor();
-        xsltProcessor.importStylesheet(xsltNode);
-        xsltLookup[xslt] = xsltProcessor;
+        const xsltProcessor = await this.#xsltMgmt.getProcessor(xslt); 
         return {
             xsltProcessor
         }; 
