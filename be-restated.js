@@ -37,11 +37,12 @@ export class BeRestated {
         this.updateCount++;
     };
     onFromRef({ fromRef, self }) {
-        const ref = fromRef.deref();
-        if (ref === undefined) {
+        const fromEl = fromRef.deref();
+        if (fromEl === undefined) {
             this.onFrom(self);
-            return;
+            return {};
         }
+        return { fromEl };
     }
     async onXslt({ xslt }) {
         //identical to be-metamorphic.onDependciesLoaded

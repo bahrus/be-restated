@@ -40,13 +40,13 @@ export class BeRestated implements BeRestatedActions{
         this.updateCount++;
     }
 
-    onFromRef({fromRef, self}: this): void {
-        const ref = fromRef.deref();
-        if(ref === undefined) {
+    onFromRef({fromRef, self}: this): P {
+        const fromEl = fromRef.deref();
+        if(fromEl === undefined) {
             this.onFrom(self);
-            return;
+            return {};
         }
-
+        return {fromEl}
     }
 
     async onXslt({xslt}: this): Promise<P> {

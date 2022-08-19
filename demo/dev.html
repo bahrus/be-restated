@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+    <div be-restated='{
+        "from": "#main",
+        "xslt": "./ui5-list.xslt"
+    }'></div>
+
+    <div id='main'>
+        <ul>
+            <li>
+                Pineapple
+                <span slot=description>Occurs between red and yellow</span>
+                <span slot=additional-text>Expires</span>
+                <span slot=additional-text-state>Warning</span>
+            </li>
+            <li>
+            Banana
+                <span slot=description>The yellow lengthy fruit</span>
+                <span slot=additional-text>Re-stock</span>
+                <span slot=additional-text-state>Error</span>   
+            </li>
+        </ul>
+        <template be-a-beacon></template>
+    </div>
+    <script type=importmap>
+        {
+            "imports": {
+                "trans-render/": "../node_modules/trans-render/",
+                "xtal-element/": "../node_modules/xtal-element/",
+                "be-a-beacon/": "../node_modules/be-a-beacon/",
+                "be-decorated/": "../node_modules/be-decorated/",
+                "be-hive/":  "../node_modules/be-hive/"
+            }
+        }
+    </script>
+    <script type=module>
+        import '../be-restated.js';
+    </script>
+</body>
+</html>
