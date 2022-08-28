@@ -2,12 +2,8 @@ import { define } from 'be-decorated/be-decorated.js';
 import { register } from 'be-hive/register.js';
 import 'be-a-beacon/be-a-beacon.js';
 import { Mgmt } from 'trans-render/xslt/Mgmt.js';
-export class BeRestated {
-    #target;
+export class BeRestated extends EventTarget {
     #xsltMgmt = new Mgmt();
-    intro(proxy, target, beDecorProps) {
-        this.#target = target;
-    }
     onFrom({ from, proxy }) {
         const rn = proxy.getRootNode();
         const fromEl = rn.querySelector(from);
@@ -18,7 +14,7 @@ export class BeRestated {
         rn.addEventListener('i-am-here', this.onRNBeacon, { capture: true });
     }
     onRNBeacon = (e) => {
-        const rn = this.#target.getRootNode();
+        const rn = this.proxy.self.getRootNode();
         const fromEl = rn.querySelector(this.proxy.from);
         if (fromEl === null)
             return;
@@ -53,7 +49,7 @@ export class BeRestated {
             xsltProcessor
         };
     }
-    async onReady({ xsltProcessor, fromEl, proxy, expandTempl }) {
+    async onReady({ xsltProcessor, fromEl, proxy, expandTempl, self }) {
         let xmlSrc = fromEl;
         if (expandTempl) {
             const { clone } = await import('trans-render/xslt/clone.js');
@@ -63,8 +59,9 @@ export class BeRestated {
         swap(xmlSrc, true);
         const resultDocument = xsltProcessor.transformToFragment(xmlSrc, document);
         //swap(resultDocument, false);
-        this.#target.innerHTML = '';
-        this.#target.append(resultDocument);
+        self.innerHTML = '';
+        self.append(resultDocument);
+        proxy.resolved = true;
         return {
             fromEl: undefined
         };
@@ -89,7 +86,6 @@ define({
             upgrade,
             ifWantsToBe,
             virtualProps: ['from', 'xslt', 'xsltProcessor', 'fromRef', 'fromEl', 'expandTempl', 'updateCount'],
-            intro: 'intro',
             proxyPropDefaults: {
                 updateCount: 1,
             }

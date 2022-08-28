@@ -1,4 +1,4 @@
-import {BeDecoratedProps} from 'be-decorated/types';
+import {BeDecoratedProps, MinimalProxy} from 'be-decorated/types';
 
 export interface BeRestatedEndUserProps {
     from: string,
@@ -6,7 +6,7 @@ export interface BeRestatedEndUserProps {
     expandTempl: boolean,
 }
 
-export interface BeRestatedVirtualProps extends BeRestatedEndUserProps {
+export interface BeRestatedVirtualProps extends BeRestatedEndUserProps, MinimalProxy {
     fromRef: WeakRef<Element>;
     xsltProcessor: XSLTProcessor;
     self: any;
@@ -21,7 +21,6 @@ export interface BeRestatedProps extends BeRestatedVirtualProps{
 export type P =  Partial<Element & BeRestatedVirtualProps>;
 
 export interface BeRestatedActions{
-    intro(proxy: Element & BeRestatedVirtualProps, target: Element, beDecorProps: BeDecoratedProps): void;
     finale(proxy: Element & BeRestatedVirtualProps, target: Element, beDecorProps: BeDecoratedProps): void;
     onFrom(self: this): void;
     onFromRef(self: this): void;

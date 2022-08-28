@@ -4,12 +4,9 @@ import 'be-a-beacon/be-a-beacon.js';
 import {BeRestatedActions, BeRestatedProps, BeRestatedVirtualProps, P} from './types';
 import {Mgmt} from 'trans-render/xslt/Mgmt.js';
 
-export class BeRestated implements BeRestatedActions{
-    #target!: Element;
+export class BeRestated extends EventTarget implements BeRestatedActions{
     #xsltMgmt = new Mgmt();
-    intro(proxy: Element & BeRestatedVirtualProps, target: Element, beDecorProps: BeDecoratedProps<any, any>): void {
-        this.#target = target;
-    }
+
     onFrom({from, proxy}: this): void {
         const rn = proxy.getRootNode() as Element | DocumentFragment;
         const fromEl = rn.querySelector(from);
@@ -21,7 +18,7 @@ export class BeRestated implements BeRestatedActions{
     }
 
     onRNBeacon = (e: Event) => {
-        const rn = this.#target.getRootNode() as Element | DocumentFragment;
+        const rn = this.proxy.self.getRootNode() as Element | DocumentFragment;
         const fromEl = rn.querySelector(this.proxy.from);
         if(fromEl === null) return;
         rn.removeEventListener('i-am-here', this.onRNBeacon, {capture: true});
@@ -58,7 +55,7 @@ export class BeRestated implements BeRestatedActions{
         }; 
     }
 
-    async onReady({xsltProcessor, fromEl, proxy, expandTempl}: this): Promise<P>{
+    async onReady({xsltProcessor, fromEl, proxy, expandTempl, self}: this): Promise<P>{
         let xmlSrc = fromEl!;
         if(expandTempl){
             const {clone} = await import('trans-render/xslt/clone.js');
@@ -68,8 +65,9 @@ export class BeRestated implements BeRestatedActions{
         swap(xmlSrc, true);
         const resultDocument = xsltProcessor.transformToFragment(xmlSrc, document);
         //swap(resultDocument, false);
-        this.#target.innerHTML = '';
-        this.#target.append(resultDocument);
+        self.innerHTML = '';
+        self.append(resultDocument);
+        proxy.resolved = true;
         return {
             fromEl: undefined
         }
@@ -99,7 +97,6 @@ define<BeRestatedProps & BeDecoratedProps<BeRestatedProps, BeRestatedActions>, B
             upgrade,
             ifWantsToBe,
             virtualProps:['from', 'xslt', 'xsltProcessor', 'fromRef', 'fromEl', 'expandTempl', 'updateCount'],
-            intro: 'intro',
             proxyPropDefaults: {
                 updateCount: 1,
             }
