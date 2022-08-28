@@ -1,6 +1,6 @@
 {
   "name": "be-restated",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Derive HTML from server-rendered HTML, using XSLT",
   "main": "be-restated.js",
   "module": "be-restated.js",
