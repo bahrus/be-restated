@@ -1,44 +1,53 @@
 import {define, BeDecoratedProps} from 'be-decorated/be-decorated.js';
 import {register} from 'be-hive/register.js';
 import 'be-a-beacon/be-a-beacon.js';
-import {BeRestatedActions, BeRestatedProps, BeRestatedVirtualProps, P} from './types';
+import {Actions, VirtualProps, PP, Proxy} from './types';
 import {Mgmt} from 'trans-render/xslt/Mgmt.js';
 
-export class BeRestated extends EventTarget implements BeRestatedActions{
+export class BeRestated extends EventTarget implements Actions{
     #xsltMgmt = new Mgmt();
-
-    onFrom({from, proxy}: this): void {
+    #rootAbortController: AbortController | undefined;
+    onFrom(pp: PP): void {
+        const {from, proxy} = pp;
         const rn = proxy.getRootNode() as Element | DocumentFragment;
         const fromEl = rn.querySelector(from);
         if(fromEl !== null){
             proxy.fromRef = new WeakRef(fromEl);
             return;
         }
-        rn.addEventListener('i-am-here', this.onRNBeacon, {capture: true});
+        this.disconnectRoot();
+        this.#rootAbortController = new AbortController();
+        rn.addEventListener('i-am-here', e => {
+            this.onRNBeacon(pp);
+        }, {capture: true, signal: this.#rootAbortController.signal});
     }
 
-    onRNBeacon = (e: Event) => {
-        const rn = this.proxy.self.getRootNode() as Element | DocumentFragment;
-        const fromEl = rn.querySelector(this.proxy.from);
+    #fromAbortController: AbortController | undefined;
+
+    onRNBeacon(pp: PP) {
+        const {proxy} = pp;
+        const rn = proxy.self.getRootNode() as Element | DocumentFragment;
+        const fromEl = rn.querySelector(proxy.from);
         if(fromEl === null) return;
-        rn.removeEventListener('i-am-here', this.onRNBeacon, {capture: true});
+        this.disconnectRoot();
         const beacon = fromEl.querySelector('template[be-a-beacon],template[is-a-beacon]');
         if(beacon === null){
+            this.disconnectFrom();
+            this.#fromAbortController = new AbortController();
             fromEl.addEventListener('i-am-here', e => {
-                this.proxy.fromRef = new WeakRef(fromEl);
-            }, {once: true, capture: true});
+                proxy.fromRef = new WeakRef(fromEl);
+            }, {once: true, capture: true, signal: this.#fromAbortController.signal});
         }else{
-            this.proxy.fromRef = new WeakRef(fromEl);
+            proxy.fromRef = new WeakRef(fromEl);
         }
-        fromEl.addEventListener('i-am-here', this.onFromBeacon, );
     }
 
-    onFromBeacon = (e: Event) => {
-        this.updateCount++;
-        this.fromEl = this.fromRef.deref();
-    }
+    // onFromBeacon = (e: Event) => {
+    //     this.updateCount++;
+    //     this.fromEl = this.fromRef.deref();
+    // }
 
-    onFromRef({fromRef, self}: this): P {
+    onFromRef({fromRef, self}: PP) {
         const fromEl = fromRef.deref();
         if(fromEl === undefined) {
             this.onFrom(self);
@@ -47,7 +56,7 @@ export class BeRestated extends EventTarget implements BeRestatedActions{
         return {fromEl}
     }
 
-    async onXslt({xslt}: this): Promise<P> {
+    async onXslt({xslt}: PP){
         //identical to be-metamorphic.onDependciesLoaded
         const xsltProcessor = await this.#xsltMgmt.getProcessor(xslt); 
         return {
@@ -55,7 +64,7 @@ export class BeRestated extends EventTarget implements BeRestatedActions{
         }; 
     }
 
-    async onReady({xsltProcessor, fromEl, proxy, expandTempl, self}: this): Promise<P>{
+    async onReady({xsltProcessor, fromEl, proxy, expandTempl, self}: PP){
         let xmlSrc = fromEl!;
         if(expandTempl){
             const {clone} = await import('trans-render/xslt/clone.js');
@@ -73,16 +82,22 @@ export class BeRestated extends EventTarget implements BeRestatedActions{
         }
     }
 
-    finale(proxy: Element & BeRestatedVirtualProps, target: Element, beDecorProps: BeDecoratedProps<any, any>): void {
+    disconnectRoot(){
+        if(this.#rootAbortController !== undefined) this.#rootAbortController.abort();
+    }
+    disconnectFrom(){
+        if(this.#fromAbortController !== undefined) this.#fromAbortController.abort();
+    }
+    finale(proxy: Proxy, target: Element, beDecorProps: BeDecoratedProps<any, any>): void {
+        this.disconnectFrom();
+        this.disconnectRoot();
         const {fromRef} = proxy;
         if(fromRef === undefined) return;
         const fromEl = fromRef.deref();
         if(fromEl === undefined) return;
-        fromEl.removeEventListener('i-am-here', this.onFromBeacon);
     }
 }
 
-export interface BeRestated extends BeRestatedProps{}
 
 const tagName = 'be-restated';
 
@@ -90,7 +105,7 @@ const ifWantsToBe = 'restated';
 
 const upgrade = '*';
 
-define<BeRestatedProps & BeDecoratedProps<BeRestatedProps, BeRestatedActions>, BeRestatedActions>({
+define<Proxy & BeDecoratedProps<Proxy, Actions>, Actions>({
     config:{
         tagName,
         propDefaults:{

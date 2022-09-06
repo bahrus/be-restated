@@ -25,10 +25,10 @@
   },
   "types": "types.d.ts",
   "dependencies": {
-    "be-a-beacon": "0.0.6",
-    "be-decorated": "0.0.147",
-    "be-hive": "0.0.57",
-    "trans-render": "0.0.578"
+    "be-a-beacon": "0.0.11",
+    "be-decorated": "0.0.153",
+    "be-hive": "0.0.63",
+    "trans-render": "0.0.585"
   },
   "devDependencies": {
     "may-it-serve": "0.0.2",

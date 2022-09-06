@@ -4,36 +4,45 @@ import 'be-a-beacon/be-a-beacon.js';
 import { Mgmt } from 'trans-render/xslt/Mgmt.js';
 export class BeRestated extends EventTarget {
     #xsltMgmt = new Mgmt();
-    onFrom({ from, proxy }) {
+    #rootAbortController;
+    onFrom(pp) {
+        const { from, proxy } = pp;
         const rn = proxy.getRootNode();
         const fromEl = rn.querySelector(from);
         if (fromEl !== null) {
             proxy.fromRef = new WeakRef(fromEl);
             return;
         }
-        rn.addEventListener('i-am-here', this.onRNBeacon, { capture: true });
+        this.disconnectRoot();
+        this.#rootAbortController = new AbortController();
+        rn.addEventListener('i-am-here', e => {
+            this.onRNBeacon(pp);
+        }, { capture: true, signal: this.#rootAbortController.signal });
     }
-    onRNBeacon = (e) => {
-        const rn = this.proxy.self.getRootNode();
-        const fromEl = rn.querySelector(this.proxy.from);
+    #fromAbortController;
+    onRNBeacon(pp) {
+        const { proxy } = pp;
+        const rn = proxy.self.getRootNode();
+        const fromEl = rn.querySelector(proxy.from);
         if (fromEl === null)
             return;
-        rn.removeEventListener('i-am-here', this.onRNBeacon, { capture: true });
+        this.disconnectRoot();
         const beacon = fromEl.querySelector('template[be-a-beacon],template[is-a-beacon]');
         if (beacon === null) {
+            this.disconnectFrom();
+            this.#fromAbortController = new AbortController();
             fromEl.addEventListener('i-am-here', e => {
-                this.proxy.fromRef = new WeakRef(fromEl);
-            }, { once: true, capture: true });
+                proxy.fromRef = new WeakRef(fromEl);
+            }, { once: true, capture: true, signal: this.#fromAbortController.signal });
         }
         else {
-            this.proxy.fromRef = new WeakRef(fromEl);
+            proxy.fromRef = new WeakRef(fromEl);
         }
-        fromEl.addEventListener('i-am-here', this.onFromBeacon);
-    };
-    onFromBeacon = (e) => {
-        this.updateCount++;
-        this.fromEl = this.fromRef.deref();
-    };
+    }
+    // onFromBeacon = (e: Event) => {
+    //     this.updateCount++;
+    //     this.fromEl = this.fromRef.deref();
+    // }
     onFromRef({ fromRef, self }) {
         const fromEl = fromRef.deref();
         if (fromEl === undefined) {
@@ -66,14 +75,23 @@ export class BeRestated extends EventTarget {
             fromEl: undefined
         };
     }
+    disconnectRoot() {
+        if (this.#rootAbortController !== undefined)
+            this.#rootAbortController.abort();
+    }
+    disconnectFrom() {
+        if (this.#fromAbortController !== undefined)
+            this.#fromAbortController.abort();
+    }
     finale(proxy, target, beDecorProps) {
+        this.disconnectFrom();
+        this.disconnectRoot();
         const { fromRef } = proxy;
         if (fromRef === undefined)
             return;
         const fromEl = fromRef.deref();
         if (fromEl === undefined)
             return;
-        fromEl.removeEventListener('i-am-here', this.onFromBeacon);
     }
 }
 const tagName = 'be-restated';
